@@ -1,8 +1,8 @@
 package Absyn;
 import Symbol.Symbol;
 public class SizeofExpression extends Exp {
-    Exp exp;
-    Decl name;
+    public Exp exp;
+    public Decl name;
 
     public SizeofExpression(int p, Exp e) {
         pos=p;

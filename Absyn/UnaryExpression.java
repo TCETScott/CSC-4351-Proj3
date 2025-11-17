@@ -1,8 +1,8 @@
 package Absyn;
 import Symbol.Symbol;
 public class UnaryExpression extends Exp {
-    Exp exp;
-    int prefix;
+    public Exp exp;
+    public int prefix;
 
     public UnaryExpression(int p, int pre, Exp e) {
         pos=p;

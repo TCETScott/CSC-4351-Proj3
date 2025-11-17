@@ -377,31 +377,32 @@ public class Semant {
   //Start From Here
 
   ExpTy transExp(Absyn.UnaryExpression e) {
+    // ExpTy exp = transExp(e.exp);
     ExpTy operand = transExp(e.exp);
     if (operand == null || operand.ty == null)
         return new ExpTy(null, VOID);
     Type t = operand.ty.actual();
     switch (e.prefix) {
-    case Absyn.UnaryExpression.DECREMENT:
-    case Absyn.UnaryExpression.INCREMENT:
-    case Absyn.UnaryExpression.PLUS:
-    case Absyn.UnaryExpression.MINUS:
-    case Absyn.UnaryExpression.TIMES:
-    case Absyn.UnaryExpression.AND:
-    case Absyn.UnaryExpression.TILDE:
+      case Absyn.UnaryExpression.DECREMENT:
+      case Absyn.UnaryExpression.INCREMENT:
+      case Absyn.UnaryExpression.PLUS:
+      case Absyn.UnaryExpression.MINUS:
+      case Absyn.UnaryExpression.TIMES:
+      case Absyn.UnaryExpression.AND:
+      case Absyn.UnaryExpression.TILDE:
         if (!t.coerceTo(INT)) {
             error(e.pos, "integer required for unary operator");
         }
         return new ExpTy(null, INT);
-    case Absyn.UnaryExpression.NOT:
+      case Absyn.UnaryExpression.NOT:
         if (!t.coerceTo(INT)) {
             error(e.pos, "integer required for logical not");
         }
         return new ExpTy(null, INT);
-    case -1:
+      case -1:
         error(e.pos, "invalid unary operator");
         return new ExpTy(null, VOID);
-    default:
+      default:
         error(e.pos, "unknown unary operator");
         return new ExpTy(null, VOID);
     }
@@ -443,6 +444,8 @@ public class Semant {
   }
 
   ExpTy transExp(Absyn.SizeofExpression e) {
+    // ExpTy exp = transExp(e.exp);
+    // Exp name = transDec(e.name);
     if (e.exp != null) {
         ExpTy exprTy = transExp(e.exp);
         if (exprTy == null || exprTy.ty == null) {
@@ -670,7 +673,7 @@ public class Semant {
   }
 
   Exp transDec(Absyn.DeclarationList d) {
-    
+
   }
 
   private Types.RECORD transTypeFields(Hashtable hash, Absyn.FieldList f) {
