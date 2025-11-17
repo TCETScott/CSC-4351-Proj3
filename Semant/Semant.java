@@ -520,20 +520,20 @@ public class Semant {
           checkOrderable(right, e.right.pos);
           if (!left.ty.coerceTo(right.ty) && !right.ty.coerceTo(left.ty))
 	    error(e.pos, "incompatible operands to inequality operator");
-        case Abysn.BinOp.LOGICAL_AND:
-        case Abysn.BinOp.LOGICAL_OR:
+        case Absyn.BinOp.LOGICAL_AND:
+        case Absyn.BinOp.LOGICAL_OR:
             checkInt(left, e.left.pos);
             checkInt(right, e.right.pos);
             return new ExpTy(null, INT);
-        case Abysn.BinOp.AND:
-        case Abysn.BinOp.INCLUSIVE_OR:
-        case Abysn.BinOp.EXCLUSIVE_OR:
-        case Abysn.BinOp.LEFT_SHIFT:
-        case Abysn.BinOp.RIGHT_SHIFT:
+        case Absyn.BinOp.AND:
+        case Absyn.BinOp.INCLUSIVE_OR:
+        case Absyn.BinOp.EXCLUSIVE_OR:
+        case Absyn.BinOp.LEFT_SHIFT:
+        case Absyn.BinOp.RIGHT_SHIFT:
             checkInt(left, e.left.pos);
             checkInt(right, e.right.pos);
             return new ExpTy(null, INT);
-        case Abysn.BinOp.ASSIGN:
+        case Absyn.BinOp.ASSIGN:
             if (!(e.left instanceof Absyn.Id || e.left instanceof Absyn.VarExp))
                 error(e.left.pos, "left-hand side of assignment must be a variable");
             if (!right.ty.coerceTo(left.ty))
@@ -582,6 +582,8 @@ public class Semant {
       return transDec((Absyn.EmptyDeclaration)d);
     if (d instanceof Absyn.EnumDeclaration)
       return transDec((Absyn.EnumDeclaration)d);
+    if (d instanceof Absyn.DeclarationList)
+      return transDec((Absyn.DeclarationList)d);
     throw new Error("Semant.transDec");
   }
 
@@ -664,6 +666,10 @@ public class Semant {
   }
 
   Exp transDec(Absyn.EnumDeclaration d) {
+    
+  }
+
+  Exp transDec(Absyn.DeclarationList d) {
     
   }
 
