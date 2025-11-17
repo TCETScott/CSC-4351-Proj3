@@ -408,23 +408,41 @@ public class Semant {
   }
   
   ExpTy transExp(Absyn.CommaExpression e) {
-
+    ExpTy left = transExp(e.left);
+    ExpTy right = transExp(e.right);
+    return new ExpTy(null, right.ty);
   }
 
   ExpTy transExp(Absyn.EmptyExpression e) {
-
+    return new ExpTy(null, UNIT);
   }
 
   ExpTy transExp(Absyn.FuncExpression e) {
-
+    ExpTy func = transExp(e.name);
+    if (!(func.ty instanceof Types.FUNC)) {
+        error(e.pos, "attempt to call a non-function");
+        return new ExpTy(null, Types.INT);
+    }
+    Types.FUNC funcTy = (Types.FUNC) func.ty;
+    ArrayList<ExpTy> argTys = transArgList(e.args);
+    if (argTys.size() != funcTy.formals.size()) {
+      error(e.pos, "wrong number of arguments: expected " + funcTy.formals.size() + ", got " + argTys.size());
+    }
+    for (int i = 0; i < Math.min(argTys.size(), funcTy.formals.size()); i++) {
+      Type expected = funcTy.formals.get(i);
+      Type actual = argTys.get(i).ty;
+      if (!actual.coerceTo(expected)) {
+        error(e.pos, "argument " + (i + 1) + " has wrong type: expected " + expected + " but got " + actual);
+      }
+    }
+    return new ExpTy(null, funcTy.result);
   }
 
   ExpTy transExp(Absyn.ParenExpression e) {
-
+    return transExp(e.exp);
   }
 
   ExpTy transExp(Absyn.SizeofExpression e) {
-      // Case 1: sizeof(expression)
     if (e.exp != null) {
         ExpTy exprTy = transExp(e.exp);
         if (exprTy == null || exprTy.ty == null) {
@@ -448,27 +466,107 @@ public class Semant {
   }
 
   ExpTy transExp(Absyn.Id e) {
-
+    Env.Entry entry = venv.get(Symbol.symbol(e.id));
+    if (entry == null) {
+        error(e.pos, "undefined variable: " + e.id);
+        return new ExpTy(null, Types.INT);
+    }
+    if (!(entry instanceof Env.VarEntry)) {
+        error(e.pos, "attempt to use function '" + e.id + "' as a variable");
+        return new ExpTy(null, Types.INT);
+    }
+    Env.VarEntry var = (Env.VarEntry) entry;
+    return new ExpTy(null, var.ty);
   } 
 
-  ExpTy transExp(Absyn.IdExp e) {
-
-  } 
+/*ExpTy transExp(Absyn.IdExp e) {
+    Env.Entry entry = venv.get(Symbol.symbol(e.id.id));
+    if (entry == null) {
+        error(e.pos, "undefined variable: " + e.id.id);
+        return new ExpTy(null, INT);
+    }
+    if (!(entry instanceof Env.VarEntry)) {
+        error(e.pos, "attempt to use function '" + e.id.id + "' as a variable");
+        return new ExpTy(null, INT);
+    }
+    Env.VarEntry var = (Env.VarEntry) entry;
+    return new ExpTy(null, var.ty);
+  } */
 
   ExpTy transExp(Absyn.BinOp e) {
+    ExpTy left = transExp(e.left);
+    ExpTy right = transExp(e.right);
 
+    switch (e.oper) {
+        case Absyn.BinOp.PLUS:
+        case Absyn.BinOp.MINUS:
+        case Absyn.BinOp.MUL:
+        case Absyn.BinOp.DIV:
+          checkInt(left, e.left.pos);
+          checkInt(right, e.right.pos);
+          return new ExpTy(null, INT);
+        case Absyn.BinOp.EQ:
+        case Absyn.BinOp.NE:
+          checkComparable(left, e.left.pos);
+          checkComparable(right, e.right.pos);
+          if (!left.ty.coerceTo(right.ty) && !right.ty.coerceTo(left.ty)) 
+	    error(e.pos, "incompatible operands to equality operator");
+          return new ExpTy(null, INT);
+        case Absyn.BinOp.LT:
+        case Absyn.BinOp.LE:
+        case Absyn.BinOp.GT:
+        case Absyn.BinOp.GE:
+          checkOrderable(left, e.left.pos);
+          checkOrderable(right, e.right.pos);
+          if (!left.ty.coerceTo(right.ty) && !right.ty.coerceTo(left.ty))
+	    error(e.pos, "incompatible operands to inequality operator");
+        case Abysn.BinOp.LOGICAL_AND:
+        case Abysn.BinOp.LOGICAL_OR:
+            checkInt(left, e.left.pos);
+            checkInt(right, e.right.pos);
+            return new ExpTy(null, INT);
+        case Abysn.BinOp.AND:
+        case Abysn.BinOp.INCLUSIVE_OR:
+        case Abysn.BinOp.EXCLUSIVE_OR:
+        case Abysn.BinOp.LEFT_SHIFT:
+        case Abysn.BinOp.RIGHT_SHIFT:
+            checkInt(left, e.left.pos);
+            checkInt(right, e.right.pos);
+            return new ExpTy(null, INT);
+        case Abysn.BinOp.ASSIGN:
+            if (!(e.left instanceof Absyn.Id || e.left instanceof Absyn.VarExp))
+                error(e.left.pos, "left-hand side of assignment must be a variable");
+            if (!right.ty.coerceTo(left.ty))
+                error(e.pos, "type mismatch in assignment: cannot assign " + right.ty + " to " + left.ty);
+            return new ExpTy(null, left.ty);
+        default:
+            throw new Error("unknown operator: " + e.oper);
+    }
   }
 
   ExpTy transExp(Absyn.Char e) {
-
+    return new ExpTy(null, INT);
   }
 
   ExpTy transExp(Absyn.ExpList e) {
-
+    if (e.exps.isEmpty()) {
+        return new ExpTy(null, UNIT);
+    }
+    ExpTy last = null;
+    for (Exp exp : e.exps) {
+        last = transExp(exp);
+    }
+    return new ExpTy(null, last.ty);
   }
 
   ExpTy transExp(Absyn.Postfix e) {
-
+    ExpTy inner = transExp(e.postfix_expression);
+    if (!(e.postfix_expression instanceof Absyn.Id ||
+          e.postfix_expression instanceof Absyn.VarExp)) {
+        error(e.pos, "postfix expression must be a variable");
+    }
+    checkInt(inner, e.postfix_expression.pos);
+    return new ExpTy(null, inner.ty);
   }
 
   Exp transDec(Absyn.Dec d) {
