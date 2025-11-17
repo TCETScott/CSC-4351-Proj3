@@ -24,10 +24,33 @@ public class MipsFrame extends Frame {
   public MipsFrame() {}
   private MipsFrame(Label n, Util.BoolList f) {
     name = n;
+    AccessList head = null;
+    AccessList tail = null;
+    while (f != null) {
+      Access acc;
+      if (f.head)
+        acc = new InFrame(formalCount * wordSize);
+      else
+        acc = new InReg(new Temp());
+      if (head == null)
+        head = tail = new AccessList(acc, null);
+      else
+        tail = tail.tail = new AccessList(acc, null);
+      formalCount++;
+      f = f.tail;
+      }
+    formals = head;
   }
 
   private static final int wordSize = 4;
   public int wordSize() { return wordSize; }
 
-  public Access allocLocal(boolean escape) { return null; }
+  public Access allocLocal(boolean escape) { 
+    if (escape)
+      localCount++;
+      return new InFrame(-localCount * wordSize);
+    else
+      return new InReg(new Temp());
+    
+  }
 }
