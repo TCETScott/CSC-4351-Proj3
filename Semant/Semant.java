@@ -456,7 +456,7 @@ public class Semant {
         return new ExpTy(null, INT);
     }
     if (e.name != null) {
-        Type t = (Type) env.tenv.get(e.name.name);
+        Type t = (Type) env.tenv.get(e.name);
         if (t == null) {
             error(e.pos, "undeclared type in sizeof");
             return new ExpTy(null, INT);
@@ -659,7 +659,7 @@ public class Semant {
     return null;
   }
 
-  //Start From Here
+/* 
   Exp transDec(Absyn.StructDeclaration d) {
 
   }
@@ -675,7 +675,7 @@ public class Semant {
   Exp transDec(Absyn.DeclarationList d) {
 
   }
-
+*/
   private Types.RECORD transTypeFields(Hashtable hash, Absyn.FieldList f) {
     if (f == null)
       return null;
