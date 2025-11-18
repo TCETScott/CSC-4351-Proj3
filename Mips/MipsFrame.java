@@ -10,9 +10,9 @@ import Frame.AccessList;
 public class MipsFrame extends Frame {
 
   private int count = 0;
-  private int localCount = 0;
-  private int formalCount = 0;
-  
+  public int localCount = 0;
+  public int formalCount = 0;
+
   public Frame newFrame(Symbol name, Util.BoolList formals) {
     Label label;
     if (name == null)
