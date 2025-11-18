@@ -579,14 +579,14 @@ public class Semant {
       return transDec((Absyn.TypeDec)d);
     if (d instanceof Absyn.FunctionDec)
       return transDec((Absyn.FunctionDec)d);
-    if (d instanceof Absyn.StructDeclaration)
+    /*if (d instanceof Absyn.StructDeclaration)
       return transDec((Absyn.StructDeclaration)d);
     if (d instanceof Absyn.EmptyDeclaration)
       return transDec((Absyn.EmptyDeclaration)d);
     if (d instanceof Absyn.EnumDeclaration)
       return transDec((Absyn.EnumDeclaration)d);
     if (d instanceof Absyn.DeclarationList)
-      return transDec((Absyn.DeclarationList)d);
+      return transDec((Absyn.DeclarationList)d);*/
     throw new Error("Semant.transDec");
   }
 
