@@ -46,11 +46,12 @@ public class MipsFrame extends Frame {
   public int wordSize() { return wordSize; }
 
   public Access allocLocal(boolean escape) { 
-    if (escape)
+    if (escape) {
       localCount++;
       return new InFrame(-localCount * wordSize);
-    else
+    }
+    else {
       return new InReg(new Temp());
-    
+    }
   }
 }
